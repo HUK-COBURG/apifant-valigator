@@ -80,6 +80,7 @@ type ValigatorContext struct {
 func (context *ValigatorContext) Serve() error {
 	http.HandleFunc("/health", context.health)
 	http.HandleFunc("/api/validate", context.validate)
+
 	url := context.Config.Url()
 	log.Println("Serving valigator:", url)
 	return http.ListenAndServe(url, nil)

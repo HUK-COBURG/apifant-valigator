@@ -1,10 +1,21 @@
 version: '3'
 
 services:
+  apifant-repo:
+    image: nginx:alpine-slim
+    ports:
+      - 8080:80
+    volumes:
+      - ./build:/usr/share/nginx/html
+
   apifant-valigator:
+    depends_on:
+      - apifant-repo
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      SPECTRAL_PACKAGE_URL: http://apifant-repo/spectral-package.zip
     ports:
       - 8081:8081
     healthcheck:

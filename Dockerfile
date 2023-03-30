@@ -11,7 +11,7 @@ FROM node:16-alpine
 
 WORKDIR /usr/src/spectral
 
-RUN apk add bash jq curl
+RUN apk add bash jq curl unzip tree
 
 RUN npm install -g @stoplight/spectral@5.9.2
 

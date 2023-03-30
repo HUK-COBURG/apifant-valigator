@@ -7,7 +7,22 @@ import (
 	"strings"
 )
 
-const spectralLintOpenApi2Message = "OpenAPI 2.0 (Swagger) detected"
+const (
+	spectralLintOpenApi2Message = "OpenAPI 2.0 (Swagger) detected"
+	rulesetQueryParam           = "ruleset"
+	acceptHeader                = "Accept"
+)
+
+var outputFormats = map[string]string{
+	"*/*":              "html",
+	"application/json": "json",
+	"text/html":        "html",
+}
+
+var outputFormatsToContentTypes = map[string]string{
+	"json": "application/json",
+	"html": "text/html",
+}
 
 type Spectral struct {
 	Path string
