@@ -17,6 +17,6 @@ jobs:
     - name: Build & Push the Docker image
       run: docker build . --file Dockerfile --tag ${VALIGATOR_IMAGE}
     - name: Docker Login
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "${{ github.actor }}" --password-stdin
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
     - name: Push the Docker Image
       run: docker push ${VALIGATOR_IMAGE}
