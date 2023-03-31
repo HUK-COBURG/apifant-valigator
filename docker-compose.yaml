@@ -27,7 +27,10 @@ services:
     depends_on:
       - apifant-valigator
     restart: always
-    image: ghcr.io/huk-coburg/apifant-editor:latest
+    # image: ghcr.io/huk-coburg/apifant-editor:latest
+    build:
+      context: ../apifant-editor
+      dockerfile: Dockerfile
     environment:
       SPECTRAL_HOST: "http://localhost:TRY"
       VALIGATOR_HOST: apifant-valigator

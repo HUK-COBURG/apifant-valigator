@@ -7,7 +7,6 @@ then
   curl -s "$SPECTRAL_PACKAGE_URL" -o spectral-package.zip
   unzip spectral-package.zip -d . &>/dev/null
   rm -rf spectral-package.zip
-  tree -L 3
 fi
 
 echo "> sh -c $@"
