@@ -1,6 +1,10 @@
 .PHONY: default
 default: build start
 
+.PHONY: apifant-editor
+apifant-editor:
+	git submodule init apifant-editor --update
+
 build/spectral-package.zip:
 	mkdir -p build
 	cd spectral-package && zip -r ../build/spectral-package.zip .

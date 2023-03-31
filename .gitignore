@@ -1,5 +1,6 @@
 cmd/out
 gen
+build/
 
 spectral-package
 spectral-package.zip

@@ -12,20 +12,20 @@ import (
 )
 
 type ValigatorConfig struct {
-	Host        string   `json:"host"`
-	Port        int      `json:"port"`
-	WorkingDir  string   `json:"workingDir"`
-	RuleSetsDir string   `json:"ruleSetsDir"`
-	SkipRules   []string `json:"skipRules"`
+	Host      string   `json:"host"`
+	Port      int      `json:"port"`
+	BasePath  string   `json:"basePath"`
+	SkipRules []string `json:"skipRules"`
+	RuleSets  []string `json:"ruleSets"`
 }
 
 func NewValigatorConfig(configFile string) *ValigatorConfig {
 	config := ValigatorConfig{
-		Host:        "0.0.0.0",
-		Port:        8081,
-		WorkingDir:  ".",
-		RuleSetsDir: "./rulesets",
-		SkipRules:   []string{},
+		Host:      "0.0.0.0",
+		Port:      8081,
+		BasePath:  "/valigator",
+		RuleSets:  []string{},
+		SkipRules: []string{},
 	}
 
 	bytes, err := os.ReadFile(configFile)
@@ -52,37 +52,28 @@ func (config ValigatorConfig) Url() string {
 
 func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
 	context := ValigatorContext{
-		Config:   config,
-		RuleSets: []string{},
-	}
-
-	// read rule sets from configured directory
-	dirs, err := os.ReadDir(config.RuleSetsDir)
-	if err != nil {
-		log.Println("Unable to read:", config.RuleSetsDir)
-		return &context, err
-	}
-
-	for _, entry := range dirs {
-		if !entry.IsDir() {
-			context.RuleSets = append(context.RuleSets, entry.Name())
-		}
+		Config: config,
 	}
 
 	return &context, nil
 }
 
 type ValigatorContext struct {
-	Config   ValigatorConfig
-	RuleSets []string
+	Config ValigatorConfig
+}
+
+func (context *ValigatorContext) Path(path ...string) string {
+	args := []string{context.Config.BasePath}
+	args = append(args, path...)
+	return strings.Join(args, "/")
 }
 
 func (context *ValigatorContext) Serve() error {
 	http.HandleFunc("/health", context.health)
-	http.HandleFunc("/api/validate", context.validate)
+	http.HandleFunc(context.Path("api", "validate"), context.validate)
 
 	url := context.Config.Url()
-	log.Println("Serving valigator:", url)
+	log.Println("Serving valigator:", url, ", with base path:", context.Config.BasePath)
 	return http.ListenAndServe(url, nil)
 }
 
@@ -110,8 +101,8 @@ func (context *ValigatorContext) saveRequest(filePath string, reader io.Reader) 
 	return filePath, nil
 }
 
-func (context *ValigatorContext) hasRuleset(ruleset string) bool {
-	for _, rs := range context.RuleSets {
+func (config ValigatorConfig) hasRuleset(ruleset string) bool {
+	for _, rs := range config.RuleSets {
 		if strings.EqualFold(rs, ruleset) {
 			return true
 		}
@@ -137,7 +128,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 
 	query := r.URL.Query()
 	ruleset := query.Get(rulesetQueryParam)
-	hasRuleset := context.hasRuleset(ruleset)
+	hasRuleset := context.Config.hasRuleset(ruleset)
 	if !hasRuleset {
 		log.Println("Unknown ruleset:", ruleset)
 		w.WriteHeader(http.StatusBadRequest)

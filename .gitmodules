@@ -1,0 +1,4 @@
+[submodule "editor"]
+	path = apifant-editor
+	url = git@github.com:HUK-COBURG/apifant-editor.git
+	branch = apifant

@@ -1,15 +1,15 @@
 FROM golang:1.19-alpine AS golang
 
-WORKDIR /tmp/validator
+WORKDIR /tmp/valigator
 ADD cmd ./cmd
 ADD go.mod .
 ADD go.sum .
-WORKDIR /tmp/validator/cmd
-RUN GOARCH=arm64 go build -v -ldflags '-s -w' -o "out/validator" .
+WORKDIR /tmp/valigator/cmd
+RUN GOARCH=arm64 go build -v -ldflags '-s -w' -o "out/valigator" .
 
 FROM node:16-alpine
 
-WORKDIR /usr/src/spectral
+WORKDIR /usr/src/valigator
 
 RUN apk add bash jq curl unzip tree
 
@@ -21,7 +21,9 @@ ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
-COPY --from=golang /tmp/validator/cmd/out/validator /usr/local/bin/validator
-RUN chmod +x /usr/local/bin/validator
+COPY --from=golang /tmp/valigator/cmd/out/valigator /usr/local/bin/valigator
+RUN chmod +x /usr/local/bin/valigator
 
-CMD ["validator"]
+COPY valigator.json /usr/src/valigator/valigator.json
+
+CMD ["valigator"]

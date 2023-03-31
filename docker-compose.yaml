@@ -3,8 +3,6 @@ version: '3'
 services:
   apifant-repo:
     image: nginx:alpine-slim
-    ports:
-      - 8080:80
     volumes:
       - ./build:/usr/share/nginx/html
 
@@ -23,4 +21,22 @@ services:
       interval: 5s
       timeout: 1s
       retries: 5
+      start_period: 5s
+
+  apifant-editor:
+    depends_on:
+      - apifant-valigator
+    restart: always
+    image: ghcr.io/huk-coburg/apifant-editor:latest
+    environment:
+      SPECTRAL_HOST: "http://localhost:TRY"
+      VALIGATOR_HOST: apifant-valigator
+      VALIGATOR_PORT: 8081
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/index.html" ]
+      interval: 5s
+      timeout: 1s
+      retries: 3
       start_period: 5s
