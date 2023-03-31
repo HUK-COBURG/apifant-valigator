@@ -1,5 +1,7 @@
 FROM registry.access.redhat.com/ubi8/go-toolset:1.18 AS golang
 
+ARG GOARCH=arm64
+
 WORKDIR /tmp/valigator
 ADD cmd ./cmd
 ADD go.mod .
@@ -7,7 +9,7 @@ ADD go.sum .
 WORKDIR /tmp/valigator/cmd
 
 USER 0
-RUN GOARCH=arm64 go build -v -ldflags '-s -w' -o "out/valigator" .
+RUN GOARCH=${GOARCH} go build -v -ldflags '-s -w' -o "out/valigator" .
 USER 1001
 
 FROM registry.access.redhat.com/ubi8/nodejs-16-minimal

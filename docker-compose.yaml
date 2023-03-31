@@ -12,6 +12,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - GOARCH=arm64
     environment:
       SPECTRAL_PACKAGE_URL: http://apifant-repo/spectral-package.zip
     ports:
