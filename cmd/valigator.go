@@ -50,14 +50,19 @@ func (config ValigatorConfig) Url() string {
 }
 
 func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
-	ruleSets := []string{}
-	for 
-
-	context := ValigatorContext{
-		Config: config,
+	ruleSets := []string{
+		"v5",
+		"v10",
 	}
 
-	return &context, nil
+	// TODO: read rulesets from file system
+
+	ctx := ValigatorContext{
+		Config:   config,
+		RuleSets: ruleSets,
+	}
+
+	return &ctx, nil
 }
 
 type ValigatorContext struct {
