@@ -111,6 +111,7 @@ func (config ValigatorConfig) hasRuleset(ruleset string) bool {
 }
 
 func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Received Request %s %s", r.Method, r.URL)
 	isPostRequest := r.Method == http.MethodPost
 	if !isPostRequest {
 		log.Println("Only POST requests are supported!")
