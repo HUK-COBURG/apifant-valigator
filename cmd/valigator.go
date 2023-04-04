@@ -109,8 +109,8 @@ func (context *ValigatorContext) saveRequest(filePath string, reader io.Reader) 
 	return filePath, nil
 }
 
-func (config ValigatorConfig) hasRuleset(ruleset string) bool {
-	for _, rs := range config.RuleSets {
+func (context *ValigatorContext) hasRuleset(ruleset string) bool {
+	for _, rs := range context.RuleSets {
 		if strings.EqualFold(rs, ruleset) {
 			return true
 		}
@@ -137,7 +137,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 
 	query := r.URL.Query()
 	ruleset := query.Get(rulesetQueryParam)
-	hasRuleset := context.Config.hasRuleset(ruleset)
+	hasRuleset := context.hasRuleset(ruleset)
 	if !hasRuleset {
 		log.Println("Unknown ruleset:", ruleset)
 		w.WriteHeader(http.StatusBadRequest)
