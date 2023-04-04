@@ -2,8 +2,6 @@ package main
 
 import "log"
 
-var context ValigatorContext
-
 func main() {
 	config := NewValigatorConfig("./valigator.json")
 	context, _ := config.CreateContext()
