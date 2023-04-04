@@ -165,6 +165,11 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 		log.Panicln(err)
 	}
 
+	err = os.Remove(filePath)
+	if err != nil {
+		log.Println("Failed to delete file:", filePath, err)
+	}
+
 	contentType, hasContentType := outputFormatsToContentTypes[spectralMediaType]
 	if hasContentType {
 		w.Header().Add("Content-Type", contentType)
