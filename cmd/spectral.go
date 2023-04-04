@@ -50,7 +50,9 @@ func (opts *SpectralLintOpts) ToArgs() []string {
 }
 
 func (spectral *Spectral) Lint(opts SpectralLintOpts) (string, error) {
+	log.Println("Linting request...")
 	cmd := exec.Command(spectral.Path, opts.ToArgs()...)
+	log.Println("running command:", cmd.Path, "with args:", cmd.Args, "in directory:", cmd.Dir)
 	stdoutBytes, err := cmd.Output()
 	exitErr, isExitErr := err.(*exec.ExitError)
 	if err != nil {

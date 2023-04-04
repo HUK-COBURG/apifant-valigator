@@ -14,8 +14,6 @@ services:
       dockerfile: Dockerfile
       args:
         - GOARCH=arm64
-    environment:
-      SPECTRAL_PACKAGE_URL: http://apifant-repo/spectral-package.zip
     ports:
       - 8081:8081
     healthcheck:
@@ -34,7 +32,7 @@ services:
       context: ../apifant-editor
       dockerfile: Dockerfile
     environment:
-      SPECTRAL_HOST: "http://localhost:TRY"
+      VALIGATOR_SCHEME: http
       VALIGATOR_HOST: apifant-valigator
       VALIGATOR_PORT: 8081
     ports:

@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type ValigatorConfig struct {
@@ -16,7 +17,6 @@ type ValigatorConfig struct {
 	Port      int      `json:"port"`
 	BasePath  string   `json:"basePath"`
 	SkipRules []string `json:"skipRules"`
-	RuleSets  []string `json:"ruleSets"`
 }
 
 func NewValigatorConfig(configFile string) *ValigatorConfig {
@@ -24,7 +24,6 @@ func NewValigatorConfig(configFile string) *ValigatorConfig {
 		Host:      "0.0.0.0",
 		Port:      8081,
 		BasePath:  "/valigator",
-		RuleSets:  []string{},
 		SkipRules: []string{},
 	}
 
@@ -51,6 +50,9 @@ func (config ValigatorConfig) Url() string {
 }
 
 func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
+	ruleSets := []string{}
+	for 
+
 	context := ValigatorContext{
 		Config: config,
 	}
@@ -59,7 +61,8 @@ func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
 }
 
 type ValigatorContext struct {
-	Config ValigatorConfig
+	Config   ValigatorConfig
+	RuleSets []string
 }
 
 func (context *ValigatorContext) Path(path ...string) string {
@@ -140,7 +143,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Println("Failed to write request body to file!")
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Panicln(err)
 	}
 
 	spectralLintOpts := SpectralLintOpts{
@@ -154,7 +157,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Println("Failed to run spectral lint command!")
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Panicln(err)
 	}
 
 	contentType, hasContentType := outputFormatsToContentTypes[spectralMediaType]
@@ -168,7 +171,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		log.Println("Write spectral lint output to response failed!")
 		w.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Panicln(err)
 	}
 }
 
