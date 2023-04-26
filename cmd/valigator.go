@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/rs/cors"
 )
 
 type ValigatorConfig struct {
@@ -57,9 +58,15 @@ func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
 
 	// TODO: read rulesets from file system
 
+	_, devmode := os.LookupEnv("DEVMODE")
+	if devmode {
+		log.Println("devmode is active")
+	}
+
 	ctx := ValigatorContext{
 		Config:   config,
 		RuleSets: ruleSets,
+		Devmode:  devmode,
 	}
 
 	return &ctx, nil
@@ -68,6 +75,7 @@ func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
 type ValigatorContext struct {
 	Config   ValigatorConfig
 	RuleSets []string
+	Devmode  bool
 }
 
 func (context *ValigatorContext) Path(path ...string) string {
@@ -77,12 +85,18 @@ func (context *ValigatorContext) Path(path ...string) string {
 }
 
 func (context *ValigatorContext) Serve() error {
-	http.HandleFunc("/health", context.health)
-	http.HandleFunc(context.Path("api", "validate"), context.validate)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", context.health)
+	mux.HandleFunc(context.Path("api", "validate"), context.validate)
 
 	url := context.Config.Url()
 	log.Println("Serving valigator:", url, ", with base path:", context.Config.BasePath)
-	return http.ListenAndServe(url, nil)
+	if context.Devmode {
+		handler := cors.Default().Handler(mux)
+		return http.ListenAndServe(url, handler)
+	} else {
+		return http.ListenAndServe(url, mux)
+	}
 }
 
 func (context *ValigatorContext) saveRequest(filePath string, reader io.Reader) (string, error) {

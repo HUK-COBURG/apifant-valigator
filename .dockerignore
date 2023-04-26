@@ -3,7 +3,6 @@ apifant-editor/
 .idea/
 .github/
 build/
-spectral-package/
 
 .gitignore
 .docker-compose.*
