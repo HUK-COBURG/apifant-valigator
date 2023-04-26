@@ -30,4 +30,9 @@ USER 1001
 
 COPY --chown=1001:1001  valigator.json $HOME/valigator.json
 
+# for some reason adding everything with /* moves all files up to the spectral directory...
+COPY --chown=1001:1001 spectral-package/v5 .
+COPY --chown=1001:1001 spectral-package/v10 .
+COPY --chown=1001:1001 spectral-package/spectral spectral
+
 CMD [ "valigator" ]
