@@ -3,5 +3,6 @@
   "port": 8081,
   "basePath": "/valigator",
   "skipRules": [],
+  "displayOnlyFailures": true,
   "ruleSets": [ "v5", "v10" ]
 }
