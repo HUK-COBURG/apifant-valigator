@@ -179,7 +179,11 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	} else {
 		w.Header().Add("Content-Type", "text/plain")
 	}
-	w.Header().Add("Access-Control-Allow-Origin", "*")
+	isLocalRequest := strings.Contains(r.Host, "localhost")
+	if isLocalRequest {
+		log.Printf("host is %s. Set Access-Control-Allow-Origin: *", r.Host)
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+	}
 	_, err = w.Write([]byte(spectralLintOutput))
 	if err != nil {
 		log.Println("Write spectral lint output to response failed!")
