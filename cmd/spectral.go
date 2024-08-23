@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
