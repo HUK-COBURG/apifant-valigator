@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	rulesetQueryParam = "ruleset"
-	acceptHeader      = "Accept"
+	rulesetQueryParam    = "ruleset"
+	errorsOnlyQueryParam = "errors-only"
+	acceptHeader         = "Accept"
 )
 
 var outputFormats = map[string]string{
@@ -33,10 +34,11 @@ var spectral = Spectral{
 }
 
 type SpectralLintOpts struct {
-	Ruleset   string
-	FilePath  string
-	Format    string
-	SkipRules []string
+	Ruleset             string
+	FilePath            string
+	Format              string
+	SkipRules           []string
+	DisplayOnlyFailures bool
 }
 
 func (opts *SpectralLintOpts) Output() string {
@@ -45,6 +47,9 @@ func (opts *SpectralLintOpts) Output() string {
 
 func (opts *SpectralLintOpts) ToArgs() []string {
 	args := []string{"lint", "--quiet", "--ruleset", opts.Ruleset, "--format", opts.Format, "--output", opts.Output()}
+	if opts.DisplayOnlyFailures {
+		args = append(args, "--display-only-failures")
+	}
 	for _, skipRule := range opts.SkipRules {
 		args = append(args, "--skip-rule", skipRule)
 	}
@@ -57,7 +62,8 @@ func (spectral *Spectral) Lint(opts SpectralLintOpts) (string, error) {
 	cmd := exec.Command(spectral.Path, opts.ToArgs()...)
 	log.Println("running command:", cmd.Args)
 	stdoutBytes, err := cmd.Output()
-	exitErr, isExitErr := err.(*exec.ExitError)
+	var exitErr *exec.ExitError
+	isExitErr := errors.As(err, &exitErr)
 	if err != nil {
 		if isExitErr && exitErr.ProcessState.ExitCode() == 1 {
 			log.Println("There seem to be critical linting errors!")
@@ -67,7 +73,7 @@ func (spectral *Spectral) Lint(opts SpectralLintOpts) (string, error) {
 		}
 	}
 
-	outputBytes, err := ioutil.ReadFile(opts.Output())
+	outputBytes, err := os.ReadFile(opts.Output())
 	if err != nil {
 		log.Println("Failed to open output file:", opts.Output())
 		return "", err

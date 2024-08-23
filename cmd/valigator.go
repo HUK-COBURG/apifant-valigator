@@ -7,24 +7,27 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 )
 
 type ValigatorConfig struct {
-	Host      string   `json:"host"`
-	Port      int      `json:"port"`
-	BasePath  string   `json:"basePath"`
-	SkipRules []string `json:"skipRules"`
+	Host                string   `json:"host"`
+	Port                int      `json:"port"`
+	BasePath            string   `json:"basePath"`
+	DisplayOnlyFailures bool     `json:"displayOnlyFailures"`
+	SkipRules           []string `json:"skipRules"`
 }
 
 func NewValigatorConfig(configFile string) *ValigatorConfig {
 	config := ValigatorConfig{
-		Host:      "0.0.0.0",
-		Port:      8081,
-		BasePath:  "/valigator",
-		SkipRules: []string{},
+		Host:                "0.0.0.0",
+		Port:                8081,
+		BasePath:            "/valigator",
+		DisplayOnlyFailures: true,
+		SkipRules:           []string{},
 	}
 
 	bytes, err := os.ReadFile(configFile)
@@ -151,11 +154,20 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 		log.Panicln(err)
 	}
 
+	errorsOnlyParam := query.Get(errorsOnlyQueryParam)
+	errorsOnly, err := strconv.ParseBool(errorsOnlyParam)
+	if err != nil {
+		// Fehlerbehandlung, falls die Konvertierung fehlschlägt
+		log.Printf("Invalid value for 'errors-only': %v. Using default value", err)
+		errorsOnly = context.Config.DisplayOnlyFailures
+	}
+
 	spectralLintOpts := SpectralLintOpts{
-		FilePath:  filePath,
-		Ruleset:   ruleset,
-		Format:    spectralMediaType,
-		SkipRules: context.Config.SkipRules,
+		FilePath:            filePath,
+		Ruleset:             ruleset,
+		Format:              spectralMediaType,
+		DisplayOnlyFailures: errorsOnly,
+		SkipRules:           context.Config.SkipRules,
 	}
 
 	spectralLintOutput, err := spectral.Lint(spectralLintOpts)
@@ -176,7 +188,11 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	} else {
 		w.Header().Add("Content-Type", "text/plain")
 	}
-
+	isLocalRequest := strings.Contains(r.Host, "localhost")
+	if isLocalRequest {
+		log.Printf("host is %s. Set Access-Control-Allow-Origin: *", r.Host)
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+	}
 	_, err = w.Write([]byte(spectralLintOutput))
 	if err != nil {
 		log.Println("Write spectral lint output to response failed!")
