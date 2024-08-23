@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -10,6 +10,7 @@ import (
 
 const (
 	rulesetQueryParam    = "ruleset"
+	environmentParam     = "environment"
 	errorsOnlyQueryParam = "errors-only"
 	acceptHeader         = "Accept"
 )

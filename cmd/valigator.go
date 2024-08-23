@@ -54,8 +54,10 @@ func (config ValigatorConfig) Url() string {
 
 func (config ValigatorConfig) CreateContext() (*ValigatorContext, error) {
 	ruleSets := []string{
-		"v5",
-		"v10",
+		"v5-de",
+		"v5-pr",
+		"v10-de",
+		"v10-pr",
 	}
 
 	// TODO: read rulesets from file system
@@ -139,7 +141,7 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 	}
 
 	query := r.URL.Query()
-	ruleset := query.Get(rulesetQueryParam)
+	ruleset := strings.ToLower(query.Get(rulesetQueryParam) + "-" + query.Get(environmentParam))
 	hasRuleset := context.hasRuleset(ruleset)
 	if !hasRuleset {
 		log.Println("Unknown ruleset:", ruleset)
