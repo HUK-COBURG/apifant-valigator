@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -153,11 +154,19 @@ func (context *ValigatorContext) validate(w http.ResponseWriter, r *http.Request
 		log.Panicln(err)
 	}
 
+	errorsOnlyParam := query.Get(errorsOnlyQueryParam)
+	errorsOnly, err := strconv.ParseBool(errorsOnlyParam)
+	if err != nil {
+		// Fehlerbehandlung, falls die Konvertierung fehlschlägt
+		log.Printf("Invalid value for 'errors-only': %v. Using default value", err)
+		errorsOnly = context.Config.DisplayOnlyFailures
+	}
+
 	spectralLintOpts := SpectralLintOpts{
 		FilePath:            filePath,
 		Ruleset:             ruleset,
 		Format:              spectralMediaType,
-		DisplayOnlyFailures: context.Config.DisplayOnlyFailures,
+		DisplayOnlyFailures: errorsOnly,
 		SkipRules:           context.Config.SkipRules,
 	}
 

@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	rulesetQueryParam = "ruleset"
-	acceptHeader      = "Accept"
+	rulesetQueryParam    = "ruleset"
+	errorsOnlyQueryParam = "errors-only"
+	acceptHeader         = "Accept"
 )
 
 var outputFormats = map[string]string{
