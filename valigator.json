@@ -4,5 +4,5 @@
   "basePath": "/valigator",
   "skipRules": [],
   "displayOnlyFailures": true,
-  "ruleSets": [ "v5", "v10" ]
+  "ruleSets": [ "v5-de","v5-pr", "v10-de", "v10-pr" ]
 }

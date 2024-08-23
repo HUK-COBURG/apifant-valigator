@@ -10,6 +10,7 @@ import (
 
 const (
 	rulesetQueryParam    = "ruleset"
+	environmentParam     = "environment"
 	errorsOnlyQueryParam = "errors-only"
 	acceptHeader         = "Accept"
 )
